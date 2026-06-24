@@ -27,15 +27,77 @@
       </ul>
     </div>
 
+    <div class="panel">
+      <h3>Repartition des actifs par type</h3>
+      <p class="chart-help">Visualisation obligatoire pour le dashboard.</p>
+      <div class="chart-wrap">
+        <Bar :data="assetTypeChartData" :options="chartOptions" />
+      </div>
+    </div>
+
     <button class="btn-primary" @click="refreshRisk">Calculer le risque</button>
   </section>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
+import { Bar } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  BarElement,
+  CategoryScale,
+  LinearScale
+} from "chart.js";
 import { useCyberStore } from "../stores/cyberStore";
 
+ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+
 const store = useCyberStore();
+
+const assetTypes = [
+  "Serveur Web",
+  "Base de données",
+  "Poste utilisateur",
+  "Routeur",
+  "Pare-feu",
+  "Application métier"
+];
+
+const assetTypeChartData = computed(() => {
+  const counts = assetTypes.map((type) =>
+    store.assets.filter((asset) => asset.type === type).length
+  );
+
+  return {
+    labels: assetTypes,
+    datasets: [
+      {
+        label: "Nombre d'actifs",
+        data: counts,
+        backgroundColor: ["#0f5ed7", "#0ea5e9", "#22c55e", "#f59e0b", "#ef4444", "#6366f1"],
+        borderRadius: 6
+      }
+    ]
+  };
+});
+
+const chartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: { display: false },
+    title: { display: false }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      ticks: { precision: 0 }
+    }
+  }
+};
 
 onMounted(async () => {
   await Promise.all([store.fetchAssets(), store.fetchVulnerabilities()]);
@@ -122,6 +184,16 @@ const refreshRisk = () => store.fetchRisk();
 .panel h3 {
   margin: 0 0 0.65rem;
   color: #0f172a;
+}
+
+.chart-help {
+  margin: 0 0 0.5rem;
+  color: #64748b;
+  font-size: 0.88rem;
+}
+
+.chart-wrap {
+  height: 280px;
 }
 
 .recommendations {

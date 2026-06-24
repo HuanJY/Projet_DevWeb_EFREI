@@ -29,7 +29,10 @@
         <label>Services exposes sur Internet</label>
         <input v-model="form.exposedServices" placeholder="Ex: Site web, API de paiement, Webmail" />
       </div>
-      <button type="submit" class="btn-primary">Enregistrer</button>
+      <div class="actions-row">
+        <button type="submit" class="btn-primary">Enregistrer les modifications</button>
+        <button type="button" class="btn-secondary" @click="loadCompany">Recharger les donnees</button>
+      </div>
     </form>
   </section>
 </template>
@@ -45,14 +48,26 @@ const form = reactive({
   servers: 0, clientWorkstations: 0, exposedServices: ""
 });
 
-onMounted(async () => {
+const defaultForm = {
+  name: "",
+  sector: "",
+  employees: 0,
+  servers: 0,
+  clientWorkstations: 0,
+  exposedServices: ""
+};
+
+const loadCompany = async () => {
   try {
     await store.fetchCompany();
-    Object.assign(form, store.company);
+    Object.assign(form, { ...defaultForm, ...(store.company || {}) });
+    error.value = null;
   } catch (e) {
     error.value = "Impossible de charger l'entreprise.";
   }
-});
+};
+
+onMounted(loadCompany);
 
 const success = ref(null);
 
@@ -60,9 +75,9 @@ const submit = async () => {
   try {
     await store.saveCompany({ ...form });
     error.value = null;
-    success.value = "Entreprise enregistree avec succes !";
+    success.value = "Informations entreprise mises a jour avec succes.";
     setTimeout(() => (success.value = null), 3000);
-    Object.assign(form, { name: "", sector: "", employees: 0, servers: 0, clientWorkstations: 0, exposedServices: "" });
+    Object.assign(form, { ...defaultForm, ...(store.company || {}) });
   } catch (e) {
     error.value = "Erreur lors de l'enregistrement.";
   }
@@ -88,6 +103,13 @@ const submit = async () => {
 
 .form-grid { display: grid; gap: 0.95rem; }
 
+.actions-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .field { display: flex; flex-direction: column; gap: 6px; }
 .field label { font-size: 0.84rem; font-weight: 600; color: #334155; }
 .field input {
@@ -106,7 +128,6 @@ const submit = async () => {
 }
 
 .btn-primary {
-  margin-top: 8px;
   padding: 0.72rem 1rem;
   border-radius: 8px;
   border: none;
@@ -119,6 +140,23 @@ const submit = async () => {
 }
 .btn-primary:hover {
   background: #0d4fb6;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  padding: 0.72rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #cdd8e8;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 0.96rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
   transform: translateY(-1px);
 }
 

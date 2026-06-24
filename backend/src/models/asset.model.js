@@ -14,7 +14,8 @@ const Asset = sequelize.define('Asset', {
     allowNull: false
   },
   name: { type: DataTypes.STRING, allowNull: false },
-  exposedToInternet: { type: DataTypes.BOOLEAN, defaultValue: false }
+  exposedToInternet: { type: DataTypes.BOOLEAN, defaultValue: false },
+  companyId: { type: DataTypes.INTEGER, allowNull: false }
 });
 
 module.exports = Asset;

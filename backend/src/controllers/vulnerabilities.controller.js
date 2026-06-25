@@ -24,3 +24,16 @@ exports.createVulnerability = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.deleteVulnerability = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const vuln = await Vulnerability.findByPk(id);
+    if (!vuln) return res.status(404).json({ error: 'Vulnerabilite non trouvee.' });
+
+    await vuln.destroy();
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

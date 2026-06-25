@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { getCompany, updateCompany } from "../services/companyService";
 import { getAssets, createAsset, updateAsset, deleteAsset } from "../services/assetService";
-import { getVulnerabilities, createVulnerability } from "../services/vulnerabilityService";
+import { getVulnerabilities, createVulnerability, deleteVulnerability } from "../services/vulnerabilityService";
 import { calculateRisk } from "../services/riskService";
 
 export const useCyberStore = defineStore("cyber", {
@@ -44,6 +44,10 @@ export const useCyberStore = defineStore("cyber", {
     async addVulnerability(data) {
       const v = await createVulnerability(data);
       this.vulnerabilities.push(v);
+    },
+    async removeVulnerability(id) {
+      await deleteVulnerability(id);
+      this.vulnerabilities = this.vulnerabilities.filter((v) => v.id !== id);
     },
     async fetchRisk() {
       this.risk = await calculateRisk();

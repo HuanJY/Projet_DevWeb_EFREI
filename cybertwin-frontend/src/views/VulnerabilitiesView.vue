@@ -20,11 +20,14 @@
 
     <ul class="list">
       <li v-for="v in store.vulnerabilities" :key="v.id">
-        <div>
-          <strong>{{ v.name }}</strong>
-          <span class="meta" v-if="v.Asset"> sur {{ v.Asset.name }}</span>
+        <div class="item-main">
+          <div>
+            <strong>{{ v.name }}</strong>
+            <span class="meta" v-if="v.Asset"> sur {{ v.Asset.name }}</span>
+          </div>
+          <span class="badge" :class="v.criticality">{{ v.criticality }}</span>
         </div>
-        <span class="badge" :class="v.criticality">{{ v.criticality }}</span>
+        <button type="button" class="btn-danger" @click="remove(v.id)">Supprimer</button>
       </li>
     </ul>
   </section>
@@ -56,6 +59,15 @@ const add = async () => {
     criticality.value = "";
   } catch (e) {
     error.value = "Erreur lors de l'ajout.";
+  }
+};
+
+const remove = async (id) => {
+  try {
+    await store.removeVulnerability(id);
+    error.value = null;
+  } catch (e) {
+    error.value = "Erreur lors de la suppression.";
   }
 };
 </script>
@@ -137,6 +149,14 @@ select:focus {
   gap: 0.7rem;
 }
 
+.item-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  width: 100%;
+}
+
 .meta {
   color: #64748b;
   margin-left: 0.28rem;
@@ -165,6 +185,18 @@ select:focus {
   color: #991b1b;
 }
 
+.btn-danger {
+  border: none;
+  border-radius: 7px;
+  padding: 0.45rem 0.68rem;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-weight: 600;
+  background: #ef4444;
+  color: #ffffff;
+  white-space: nowrap;
+}
+
 @media (max-width: 980px) {
   .vuln-form {
     grid-template-columns: 1fr;
@@ -173,6 +205,10 @@ select:focus {
   .list li {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .item-main {
+    width: 100%;
   }
 }
 </style>

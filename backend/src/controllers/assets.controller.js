@@ -1,4 +1,4 @@
-const { Asset, Vulnerability } = require('../models');
+const { Asset, Vulnerability, Company } = require('../models');
 
 exports.getAssets = async (req, res) => {
   try {
@@ -15,7 +15,18 @@ exports.createAsset = async (req, res) => {
     if (!type || !name) {
       return res.status(400).json({ error: "Le type et le nom de l'actif sont requis." });
     }
-    const asset = await Asset.create({ type, name, exposedToInternet: !!exposedToInternet });
+
+    const company = await Company.findOne();
+    if (!company) {
+      return res.status(400).json({ error: "Aucune entreprise enregistrée. Créez d'abord l'entreprise via PUT /company." });
+    }
+
+    const asset = await Asset.create({
+      type,
+      name,
+      exposedToInternet: !!exposedToInternet,
+      companyId: company.id
+    });
     res.status(201).json(asset);
   } catch (err) {
     res.status(500).json({ error: err.message });
